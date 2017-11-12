@@ -51,7 +51,7 @@ var ViewModel = function () {
             lat: 40.7413549,
             lng: -73.9980244
         },
-        //styles:styles,
+        styles:styles,
         zoom: 12
     });
 
