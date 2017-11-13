@@ -64,9 +64,9 @@ var ViewModel = function () {
                         self.populateInfoWindow(this, largeInfoWindow);
                     });
                 }
-               
+
             }
-             map.fitBounds(bounds);
+            map.fitBounds(bounds);
         }
     });
 
@@ -77,12 +77,39 @@ var ViewModel = function () {
         //check to make sure the info window in not open at this marker
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
-            infowindow.setContent("<div>" + marker.title + "</div>");
+            //Clear the info window content to give googlemaps time to load
+            infowindow.setContent();
+            //make sure the property is cleared if the info window is closed
+            infowindow.addListener('closeclick', function () {
+                infowindow.marker = null;
+            });
+            var streetViewService = new google.maps.StreetViewService();
+            var raduis = 50;
+            //incase status is OK which means pano was found, compute the position
+            //of the street view image, then calculate the heading, then get the 
+            //panorama from that and set its options
+            function getStreetView(data, status) {
+                if (status == google.maps.StreetViewStatus.OK) {
+                    var nearStreetViewLocation = data.location.latLng;
+                    console.log(nearStreetViewLocation);
+                    var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
+                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+                    var panoramaOptions = {
+                        position: nearStreetViewLocation,
+                        pov: {
+                            heading: heading,
+                            pitch: 25
+                        }
+                    };
+                    var panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"),
+                        panoramaOptions)
+                } else {
+                    infowindow.setContent('<div>' + marker.title + '</div><div>No Street View found</div>');
+                }
+            }
+            streetViewService.getPanoramaByLocation(marker.position, raduis, getStreetView)
+            //open the correct info window on the marker
             infowindow.open(map, marker);
-            // //make sure the marker property is cleared oif the info window is closed
-            // infowindow.addListener("closeclick",function(){
-            //     infowindow.setMarker(null);
-            // });
         }
 
     }
