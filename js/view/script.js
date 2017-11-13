@@ -14,8 +14,8 @@ var ViewModel = function () {
     self.markers = ko.observableArray([]);
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
-
-
+    //Get the bounds of the map
+    var bounds = new google.maps.LatLngBounds();
     // make an api call to get places 
     var data = {
         client_id: 'UFBYJUIXWCPYGOS4BGBCQKTLRMR2VIHDIKO4NSHSQM125DQR',
@@ -29,7 +29,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=20&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         //url: "https://api.foursquare.com/v2/venues/explore",
         //data: data,
         dataType: "jsonp",
@@ -57,25 +57,28 @@ var ViewModel = function () {
                     });
                     //push marker into observable array
                     self.markers.push(marker);
+                    //extend bounds for each marker
+                    bounds.extend(marker.position)
                     //create an onclick to open an info window at each marker
                     marker.addListener("click", function () {
                         self.populateInfoWindow(this, largeInfoWindow);
-                    })
+                    });
                 }
-
+               
             }
+             map.fitBounds(bounds);
         }
     });
 
     //This function populates an info window anytime a marker is clicked, we will
     //only only one infowindow which would populate at the clicked marker, and populate 
     //based on the markers position
-    self.populateInfoWindow = function (marker,infowindow) {
+    self.populateInfoWindow = function (marker, infowindow) {
         //check to make sure the info window in not open at this marker
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
             infowindow.setContent("<div>" + marker.title + "</div>");
-            infowindow.open(map,marker);
+            infowindow.open(map, marker);
             // //make sure the marker property is cleared oif the info window is closed
             // infowindow.addListener("closeclick",function(){
             //     infowindow.setMarker(null);
@@ -112,7 +115,7 @@ var ViewModel = function () {
             lng: 3.3792
         },
         styles: styles,
-        zoom: 12
+        zoom: 14
     });
 }
 

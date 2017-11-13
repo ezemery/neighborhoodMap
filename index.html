@@ -97,20 +97,27 @@
                 <div class="demo-avatar-dropdown">
                     <p>Welcome to Lagos Nigeria, Find the best Spots in town.</p>
                     <div class="mdl-layout-spacer"></div>
+                    <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
+              <i class="material-icons" role="presentation">arrow_drop_down</i>
+              <span class="visuallyhidden">Spots</span>
+            </button>
+                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
+                        <li class="mdl-menu__item">Night Life</li>
+                        <li class="mdl-menu__item">Food</li>
+                        <li class="mdl-menu__item">Fun</li>
+                        <li class="mdl-menu__item">Coffee</li>
+                    </ul>
 
-                </div>
-                <div>
-                    <span class="mdl-chip mdl-chip--contact">
-                      <span class="mdl-chip__contact mdl-color--teal mdl-color-text--white">A</span>
-                    <span class="mdl-chip__text">Contact Chip</span>
-                    </span>
                 </div>
             </header>
             <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
                 <p style="padding:20px;">Recommended for you</p>
                 <div data-bind="foreach:places, visible: places().length > 0 ">
                     <a class="mdl-navigation__link" data-bind="text:name"></a>
-                    <span class="stars" data-bind="text:rating"></span>
+                    <div data-bind="if:rating">
+                        <span class="stars" data-bind="text:rating"></span>
+                    </div>
+
                 </div>
 
             </nav>
