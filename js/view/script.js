@@ -3,11 +3,20 @@ var Place = function (item) {
     this.lng = ko.observable(item.venue.location.lng);
     this.name = ko.observable(item.venue.name);
     this.rating = ko.observable(item.venue.rating);
-    this.pricing = ko.observable(item.venue.price.message);
+    //this.pricing = ko.observable(item.venue.price.message);
 }
 var ViewModel = function () {
     self = this;
-
+    // Ajax start global function
+    $(document).ajaxStart(function () {
+        $(".mdl-spinner").show()
+        console.log("Ajax Request is Starting");
+    });
+    // Ajax stop global function
+    $(document).ajaxStop(function () {
+        $(".mdl-spinner").hide()
+        console.log("Ajax Request has ended");
+    });
     //store places fetched from foursquare api
     self.places = ko.observableArray([]);
     //create a new blank array for all the listing markers
@@ -21,7 +30,7 @@ var ViewModel = function () {
         client_id: 'UFBYJUIXWCPYGOS4BGBCQKTLRMR2VIHDIKO4NSHSQM125DQR',
         client_secret: 'JHCF3AICMJQ4HYAJ5RJN1GGEK45B1B3KRQO20JZN0TZCBICG',
         ll: '6.5244, 3.3792',
-        query: 'food',
+        query: 'Nightlife',
         v: '20170801',
         limit: 10
     }
@@ -34,7 +43,8 @@ var ViewModel = function () {
         //data: data,
         dataType: "jsonp",
         success: function (data) {
-            // console.log(data.response.groups);
+            //Customize icon
+            var defaultIcon = makeMarkerIcon();
             for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
                 //console.log(groups[i]);
                 for (var j = 0, place = groups[i].items; j < place.length; j++) {
@@ -47,12 +57,14 @@ var ViewModel = function () {
                     };
 
                     var title = place[j].venue.name;
-                    console.log(title + " " + JSON.stringify(location));
+
                     var marker = new google.maps.Marker({
                         map: map,
                         position: location,
                         title: title,
                         animation: google.maps.Animation.DROP,
+                        icon: defaultIcon,
+                        //shape: shape,
                         id: j
                     });
                     //push marker into observable array
@@ -63,12 +75,26 @@ var ViewModel = function () {
                     marker.addListener("click", function () {
                         self.populateInfoWindow(this, largeInfoWindow);
                     });
+                    // Event that closes the Info Window with a click on the map
+                    google.maps.event.addListener(map, 'click', function () {
+                        infowindow.close();
+                    });
                 }
 
             }
             map.fitBounds(bounds);
         }
     });
+
+    function makeMarkerIcon() {
+        var markerIcon = new google.maps.MarkerImage('././images/heart2.png',
+            new google.maps.Size(50, 50),
+            // The origin for this image is (0, 0).
+            new google.maps.Point(0, 0),
+            // The anchor for this image is the base of the flagpole at (0, 32).
+            new google.maps.Point(0, 0));
+        return markerIcon;
+    }
 
     //This function populates an info window anytime a marker is clicked, we will
     //only only one infowindow which would populate at the clicked marker, and populate 
@@ -91,12 +117,11 @@ var ViewModel = function () {
             function getStreetView(data, status) {
                 if (status == google.maps.StreetViewStatus.OK) {
                     var nearStreetViewLocation = data.location.latLng;
-                    console.log(nearStreetViewLocation);
                     var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
                     infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
-                        
+
                         pov: {
                             heading: heading,
                             pitch: 25
@@ -114,6 +139,8 @@ var ViewModel = function () {
         }
 
     }
+    //style google maps infowindow
+
 
     var styles = [{
         "featureType": "all",
@@ -143,8 +170,10 @@ var ViewModel = function () {
             lng: 3.3792
         },
         styles: styles,
-        zoom: 14
+        zoom: 14,
+        mapTypeId: 'roadmap'
     });
+
 }
 
 function init() {
