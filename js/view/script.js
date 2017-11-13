@@ -96,6 +96,7 @@ var ViewModel = function () {
                     infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
+                        
                         pov: {
                             heading: heading,
                             pitch: 25
