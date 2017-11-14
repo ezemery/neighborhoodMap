@@ -78,28 +78,33 @@
                     <div class="mdl-layout-spacer"></div>
                 </div>
                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="night">
-                    <input type="checkbox" id="night" class="mdl-checkbox__input" checked>
+                    <input type="checkbox" id="night" class="mdl-checkbox__input" data-bind="checked:placesChecked, clicked:togglePlacesChecked">
                     <span class="mdl-checkbox__label">Nightlife</span>
                     </label>
                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="food">
-                    <input type="checkbox" id="food" class="mdl-checkbox__input" checked>
+<input type="checkbox" id="food" class="mdl-checkbox__input" checked data-bind="checked:foodChecked,clicked:toggleFoodChecked">
                     <span class="mdl-checkbox__label">Food</span>
                     </label>
             </header>
             <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
                 <p style="padding:10px;">Recommended for you</p>
-                <div data-bind="foreach:food, visible: food().length > 0">
-                    <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
-                    <div data-bind="if:rating">
-                        <span class="stars-food" data-bind="text:rating"></span>
+                <div data-bind="if:foodChecked">
+                    <div data-bind="foreach:food, visible: food().length > 0">
+                        <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
+                        <div data-bind="if:rating">
+                            <span class="stars-food" data-bind="text:rating"></span>
+                        </div>
                     </div>
                 </div>
-                <div data-bind="foreach:places, visible: places().length > 0">
-                    <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
-                    <div data-bind="if:rating">
-                        <span class="stars-places" data-bind="text:rating"></span>
+                <div data-bind="if:placesChecked">
+                    <div data-bind="foreach:places, visible: places().length > 0">
+                        <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
+                        <div data-bind="if:rating">
+                            <span class="stars-places" data-bind="text:rating"></span>
+                        </div>
                     </div>
                 </div>
+
             </nav>
         </div>
     </div>

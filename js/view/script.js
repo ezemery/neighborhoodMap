@@ -4,7 +4,6 @@ var Place = function (item) {
     this.name = ko.observable(item.venue.name);
     this.rating = ko.observable(item.venue.rating);
     this.id = ko.observable(item.venue.id);
-    //this.pricing = ko.observable(item.venue.price.message);
 }
 var Food = function (item) {
     this.lat = ko.observable(item.venue.location.lat);
@@ -32,7 +31,10 @@ var ViewModel = function () {
     //create a new blank array for all the listing markers
     self.placeMarkers = ko.observableArray([]);
     self.foodMarkers = ko.observableArray([]);
-   
+    //hiding or displaying markers
+    self.foodChecked = ko.observable(true);
+    self.placesChecked = ko.observable(true);
+
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
     //Get the bounds of the map
@@ -52,7 +54,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=5&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
             //Customize icon
@@ -95,13 +97,16 @@ var ViewModel = function () {
 
             }
             map.fitBounds(bounds);
+        },
+        error: function () {
+            alert("We seem to have run into a problem, Try again later");
         }
     });
     //call api for food
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=5&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
             //Customize icon
@@ -144,6 +149,9 @@ var ViewModel = function () {
 
             }
             map.fitBounds(bounds);
+        },
+        error: function () {
+            alert("We seem to have run into a problem, Try again later");
         }
     });
     //This function makes custom map icons
@@ -177,6 +185,9 @@ var ViewModel = function () {
                 dataType: "jsonp",
                 success: function (data) {
                     console.log(data);
+                },
+                error: function () {
+                    alert("We seem to have run into a problem, Try again later");
                 }
             });
 
@@ -241,6 +252,16 @@ var ViewModel = function () {
 
 
     });
+    //toggle places checked
+    self.togglePlacesChecked = function () {
+       self.placesChecked(!self.placesChecked());
+       console.log(self.placesChecked());
+    }
+    //toggle food checked
+    self.toggleFoodChecked = function (item) {
+        self.foodChecked(!self.foodChecked());
+        console.log(self.foodChecked())
+    }
 
     //This function binds the clicked menu to the marker info window
     self.getMarker = function (item) {
