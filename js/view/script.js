@@ -21,6 +21,7 @@ var ViewModel = function () {
     self.places = ko.observableArray([]);
     //create a new blank array for all the listing markers
     self.markers = ko.observableArray([]);
+
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
     //Get the bounds of the map
@@ -64,7 +65,6 @@ var ViewModel = function () {
                         title: title,
                         animation: google.maps.Animation.DROP,
                         icon: defaultIcon,
-                        //shape: shape,
                         id: j
                     });
                     //push marker into observable array
@@ -74,10 +74,11 @@ var ViewModel = function () {
                     //create an onclick to open an info window at each marker
                     marker.addListener("click", function () {
                         self.populateInfoWindow(this, largeInfoWindow);
+                        console.log(this);
                     });
                     // Event that closes the Info Window with a click on the map
                     google.maps.event.addListener(map, 'click', function () {
-                        infowindow.close();
+                        largeInfoWindow.close();
                     });
                 }
 
@@ -85,7 +86,7 @@ var ViewModel = function () {
             map.fitBounds(bounds);
         }
     });
-
+    //This function makes custom map icons
     function makeMarkerIcon() {
         var markerIcon = new google.maps.MarkerImage('././images/heart2.png',
             new google.maps.Size(50, 50),
@@ -104,11 +105,12 @@ var ViewModel = function () {
         if (infowindow.marker != marker) {
             infowindow.marker = marker;
             //Clear the info window content to give googlemaps time to load
-            infowindow.setContent();
+            infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
             //make sure the property is cleared if the info window is closed
             infowindow.addListener('closeclick', function () {
                 infowindow.marker = null;
             });
+            infowindow.placement = 'top';
             var streetViewService = new google.maps.StreetViewService();
             var raduis = 50;
             //incase status is OK which means pano was found, compute the position
@@ -118,7 +120,7 @@ var ViewModel = function () {
                 if (status == google.maps.StreetViewStatus.OK) {
                     var nearStreetViewLocation = data.location.latLng;
                     var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-                    infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
+                    infowindow.setContent('<div class="iw-title">' + marker.title + '</div><div id="pano"></div>');
                     var panoramaOptions = {
                         position: nearStreetViewLocation,
 
@@ -128,7 +130,7 @@ var ViewModel = function () {
                         }
                     };
                     var panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"),
-                        panoramaOptions)
+                        panoramaOptions);
                 } else {
                     infowindow.setContent('<div>' + marker.title + '</div><div>No Street View found</div>');
                 }
@@ -139,9 +141,72 @@ var ViewModel = function () {
         }
 
     }
+
     //style google maps infowindow
+    /* 
+    https: //codepen.io/Marnoto/pen/xboPmG
+
+    */
+    google.maps.event.addListener(largeInfoWindow, 'domready', function () {
+        // Reference to the DIV that wraps the bottom of infowindow
+        var iwOuter = $('.gm-style-iw');
+        /* Since this div is in a position prior to .gm-div style-iw.
+         * We use jQuery and create a iwBackground variable,
+         * and took advantage of the existing reference .gm-style-iw for the previous div with .prev().
+         */
+        var iwBackground = iwOuter.prev();
+
+        // Removes background shadow DIV
+        iwBackground.children(':nth-child(2)').css({
+            'display': 'none',
+        });
+
+        // Removes white background DIV
+        iwBackground.children(':nth-child(4)').css({
+            'display': 'none',
+
+        });
+        // Changes the desired tail shadow color.
+        iwBackground.children(':nth-child(3)').find('div').children().css({
+            'box-shadow': 'rgba(72, 181, 233, 0.6) 0px 1px 6px',
+            'z-index': '1'
+        }); // Reference to the div that groups the close button elements.
+        var iwCloseBtn = iwOuter.next();
+
+        // Apply the desired effect to the close button
+        iwCloseBtn.css({
+            opacity: '1',
+            right: '30px',
+            top: '3px',
+            border: '7px solid #d90653',
+            'border-radius': '13px',
+            'box-shadow': '0 0 5px #b30a48'
+        });
+
+        // If the content of infowindow not exceed the set maximum height, then the gradient is removed.
+        if ($('.iw-content').height() < 140) {
+            $('.iw-bottom-gradient').css({
+                display: 'none'
+            });
+        }
+        // The API automatically applies 0.7 opacity to the button after the mouseout event. This function reverses this event to the desired value.
+        iwCloseBtn.mouseout(function () {
+            $(this).css({
+                opacity: '1'
+            });
+        });
 
 
+    });
+
+    //This function binds the clicked menu to the marker info window
+    self.getMarker = function (item) {
+        //console.log(item.markers());
+        console.log(item);
+        //self.populateInfoWindow(item, largeInfoWindow);
+    }
+
+    //styles for map
     var styles = [{
         "featureType": "all",
         "elementType": "all",
@@ -176,6 +241,6 @@ var ViewModel = function () {
 
 }
 
-function init() {
-    ko.applyBindings(new ViewModel());
-}
+//function init() {
+ko.applyBindings(new ViewModel());
+//&callback=init}

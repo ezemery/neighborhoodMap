@@ -50,60 +50,6 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.cyan-light_blue.min.css">
     <link rel="stylesheet" href="css/styles.css">
-    <style>
-        #map {
-            height: 100%;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
-        .stars {
-            position: relative;
-            top: -40px;
-            left: 85%;
-            font-size: 12px;
-            padding: 5px;
-            border-radius: 50%;
-            -webkit-border-radius: 50%;
-            color: #fff;
-            background-color: #f44336;
-        }
-
-        #pano {
-            width: 200px;
-            height: 200px
-        }
-
-        .mdl-spinner {
-            position: absolute;
-            left: 45%;
-            top: 10px;
-            display: none;
-        }
-        .mdl-layout__header{
-            background-color: #263238 !important;
-        }
-        .mdl-color-text--grey-600,.mdl-layout__drawer-button{
-            color: #e0e3e4 !important;
-        }
-
-        /* .gm-style-iw {
-            background-color: rgb(237, 28, 36);
-            border: 1px solid rgba(72, 181, 233, 0.6);
-            border-radius: 10px;
-            box-shadow: 0 1px 6px rgba(178, 178, 178, 0.6);
-            color: rgb(255, 255, 255) !important;
-            font-family: gothambook;
-            text-align: center;
-            top: 15px !important;
-            width: 150px !important;
-        } */
-    </style>
 </head>
 
 <body>
@@ -128,7 +74,7 @@
         <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
             <header class="demo-drawer-header">
                 <div class="demo-avatar-dropdown">
-                    <p>Welcome to Lagos Nigeria, Find the best Spots in town.</p>
+                    <p>Welcome to Lagos Nigeria, Find the Best Spots in town.</p>
                     <div class="mdl-layout-spacer"></div>
                     <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
               <i class="material-icons" role="presentation">arrow_drop_down</i>
@@ -137,27 +83,23 @@
                     <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
                         <li class="mdl-menu__item">Night Life</li>
                         <li class="mdl-menu__item">Food</li>
-                        <li class="mdl-menu__item">Fun</li>
-                        <li class="mdl-menu__item">Coffee</li>
                     </ul>
 
                 </div>
             </header>
             <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
                 <p style="padding:20px;">Recommended for you</p>
-                <div data-bind="foreach:places, visible: places().length > 0 ">
+                <div data-bind="foreach:places, visible: places().length > 0, click:getMarker">
                     <a class="mdl-navigation__link" data-bind="text:name"></a>
                     <div data-bind="if:rating">
                         <span class="stars" data-bind="text:rating"></span>
                     </div>
-
                 </div>
-
             </nav>
         </div>
     </div>
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATWMwHKXegg15Z6Ceu3I1Mou3MGWYKy-I&callback=init" async defer>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATWMwHKXegg15Z6Ceu3I1Mou3MGWYKy-I">
     </script>
     <script src="js/view/jquery-3.2.1.min.js"></script>
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
