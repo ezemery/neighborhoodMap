@@ -267,7 +267,19 @@ _:-ms-input-placeholder,
   height: 100%;
 }
 
-.stars {
+.stars-food {
+  position: relative;
+  top: -40px;
+  left: 85%;
+  font-size: 12px;
+  padding: 5px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  color: #fff;
+  background-color: #5191f0;
+}
+
+.stars-places {
   position: relative;
   top: -40px;
   left: 85%;

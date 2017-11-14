@@ -74,25 +74,30 @@
         <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
             <header class="demo-drawer-header">
                 <div class="demo-avatar-dropdown">
-                    <p>Welcome to Lagos Nigeria, Find the Best Spots in town.</p>
+                    <p>Welcome to Lagos Nigeria, Pick the Best Spots in town.</p>
                     <div class="mdl-layout-spacer"></div>
-                    <button id="accbtn" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon">
-              <i class="material-icons" role="presentation">arrow_drop_down</i>
-              <span class="visuallyhidden">Spots</span>
-            </button>
-                    <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="accbtn">
-                        <li class="mdl-menu__item">Night Life</li>
-                        <li class="mdl-menu__item">Food</li>
-                    </ul>
-
                 </div>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="night">
+                    <input type="checkbox" id="night" class="mdl-checkbox__input" checked>
+                    <span class="mdl-checkbox__label">Nightlife</span>
+                    </label>
+                <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="food">
+                    <input type="checkbox" id="food" class="mdl-checkbox__input" checked>
+                    <span class="mdl-checkbox__label">Food</span>
+                    </label>
             </header>
             <nav class="demo-navigation mdl-navigation mdl-color--blue-grey-800">
-                <p style="padding:20px;">Recommended for you</p>
-                <div data-bind="foreach:places, visible: places().length > 0, click:getMarker">
-                    <a class="mdl-navigation__link" data-bind="text:name"></a>
+                <p style="padding:10px;">Recommended for you</p>
+                <div data-bind="foreach:food, visible: food().length > 0">
+                    <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
                     <div data-bind="if:rating">
-                        <span class="stars" data-bind="text:rating"></span>
+                        <span class="stars-food" data-bind="text:rating"></span>
+                    </div>
+                </div>
+                <div data-bind="foreach:places, visible: places().length > 0">
+                    <a class="mdl-navigation__link" data-bind="text:name,click:$parent.getMarker"></a>
+                    <div data-bind="if:rating">
+                        <span class="stars-places" data-bind="text:rating"></span>
                     </div>
                 </div>
             </nav>

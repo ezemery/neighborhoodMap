@@ -3,8 +3,17 @@ var Place = function (item) {
     this.lng = ko.observable(item.venue.location.lng);
     this.name = ko.observable(item.venue.name);
     this.rating = ko.observable(item.venue.rating);
+    this.id = ko.observable(item.venue.id);
     //this.pricing = ko.observable(item.venue.price.message);
 }
+var Food = function (item) {
+    this.lat = ko.observable(item.venue.location.lat);
+    this.lng = ko.observable(item.venue.location.lng);
+    this.name = ko.observable(item.venue.name);
+    this.rating = ko.observable(item.venue.rating);
+    this.id = ko.observable(item.venue.id);
+}
+
 var ViewModel = function () {
     self = this;
     // Ajax start global function
@@ -19,9 +28,11 @@ var ViewModel = function () {
     });
     //store places fetched from foursquare api
     self.places = ko.observableArray([]);
+    self.food = ko.observableArray([]);
     //create a new blank array for all the listing markers
-    self.markers = ko.observableArray([]);
-
+    self.placeMarkers = ko.observableArray([]);
+    self.foodMarkers = ko.observableArray([]);
+   
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
     //Get the bounds of the map
@@ -32,22 +43,22 @@ var ViewModel = function () {
         client_secret: 'JHCF3AICMJQ4HYAJ5RJN1GGEK45B1B3KRQO20JZN0TZCBICG',
         ll: '6.5244, 3.3792',
         query: 'Nightlife',
+        query2: 'food',
         v: '20170801',
         limit: 10
     }
 
+    //call api for places
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=20&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
-        //url: "https://api.foursquare.com/v2/venues/explore",
-        //data: data,
+        url: "https://api.foursquare.com/v2/venues/explore?limit=5&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
             //Customize icon
-            var defaultIcon = makeMarkerIcon();
+            var placesIcon = makeMarkerIcon('././images/heart2.png');
             for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
-                //console.log(groups[i]);
+                console.log(groups[i]);
                 for (var j = 0, place = groups[i].items; j < place.length; j++) {
                     self.places.unshift(new Place(place[j]));
 
@@ -64,11 +75,60 @@ var ViewModel = function () {
                         position: location,
                         title: title,
                         animation: google.maps.Animation.DROP,
-                        icon: defaultIcon,
-                        id: j
+                        icon: placesIcon,
+                        id: place[j].venue.id
                     });
                     //push marker into observable array
-                    self.markers.push(marker);
+                    self.placeMarkers.push(marker);
+                    //extend bounds for each marker
+                    bounds.extend(marker.position)
+                    //create an onclick to open an info window at each marker
+                    marker.addListener("click", function () {
+                        self.populateInfoWindow(this, largeInfoWindow);
+                        console.log(this);
+                    });
+                    // Event that closes the Info Window with a click on the map
+                    google.maps.event.addListener(map, 'click', function () {
+                        largeInfoWindow.close();
+                    });
+                }
+
+            }
+            map.fitBounds(bounds);
+        }
+    });
+    //call api for food
+    $.ajax({
+        type: "GET",
+        contentType: 'application/json; charset=UTF-8',
+        url: "https://api.foursquare.com/v2/venues/explore?limit=5&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        dataType: "jsonp",
+        success: function (data) {
+            //Customize icon
+            var foodIcon = makeMarkerIcon("././images/restaurant2.png");
+            for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
+                console.log(groups[i]);
+                for (var j = 0, place = groups[i].items; j < place.length; j++) {
+                    self.food.unshift(new Food(place[j]));
+
+                    //the following uses the places observable array to create a markers on initialise
+                    var location = {
+                        lat: place[j].venue.location.lat,
+                        lng: place[j].venue.location.lng
+                    };
+
+                    var title = place[j].venue.name;
+
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: location,
+                        title: title,
+                        animation: google.maps.Animation.DROP,
+                        icon: foodIcon,
+                        id: place[j].venue.id
+                    });
+                    //push marker into observable array
+                    self.foodMarkers.push(marker);
                     //extend bounds for each marker
                     bounds.extend(marker.position)
                     //create an onclick to open an info window at each marker
@@ -87,8 +147,8 @@ var ViewModel = function () {
         }
     });
     //This function makes custom map icons
-    function makeMarkerIcon() {
-        var markerIcon = new google.maps.MarkerImage('././images/heart2.png',
+    function makeMarkerIcon(image) {
+        var markerIcon = new google.maps.MarkerImage(image,
             new google.maps.Size(50, 50),
             // The origin for this image is (0, 0).
             new google.maps.Point(0, 0),
@@ -106,37 +166,20 @@ var ViewModel = function () {
             infowindow.marker = marker;
             //Clear the info window content to give googlemaps time to load
             infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
-            //make sure the property is cleared if the info window is closed
+            // //make sure the property is cleared if the info window is closed
             infowindow.addListener('closeclick', function () {
                 infowindow.marker = null;
             });
-            infowindow.placement = 'top';
-            var streetViewService = new google.maps.StreetViewService();
-            var raduis = 50;
-            //incase status is OK which means pano was found, compute the position
-            //of the street view image, then calculate the heading, then get the 
-            //panorama from that and set its options
-            function getStreetView(data, status) {
-                if (status == google.maps.StreetViewStatus.OK) {
-                    var nearStreetViewLocation = data.location.latLng;
-                    var heading = google.maps.geometry.spherical.computeHeading(nearStreetViewLocation, marker.position);
-                    infowindow.setContent('<div class="iw-title">' + marker.title + '</div><div id="pano"></div>');
-                    var panoramaOptions = {
-                        position: nearStreetViewLocation,
-
-                        pov: {
-                            heading: heading,
-                            pitch: 25
-                        }
-                    };
-                    var panorama = new google.maps.StreetViewPanorama(document.getElementById("pano"),
-                        panoramaOptions);
-                } else {
-                    infowindow.setContent('<div>' + marker.title + '</div><div>No Street View found</div>');
+            $.ajax({
+                type: "GET",
+                contentType: 'application/json; charset=UTF-8',
+                url: 'https://api.foursquare.com/v2/venues/' + marker.id + '?client_id=' + data.client_id + '&client_secret=' + data.client_secret + '&v=20140806&m=foursquare',
+                dataType: "jsonp",
+                success: function (data) {
+                    console.log(data);
                 }
-            }
-            streetViewService.getPanoramaByLocation(marker.position, raduis, getStreetView)
-            //open the correct info window on the marker
+            });
+
             infowindow.open(map, marker);
         }
 
@@ -201,9 +244,20 @@ var ViewModel = function () {
 
     //This function binds the clicked menu to the marker info window
     self.getMarker = function (item) {
-        //console.log(item.markers());
-        console.log(item);
-        //self.populateInfoWindow(item, largeInfoWindow);
+        for (var i = 0; i < self.placeMarkers().length; i++) {
+            if (item.id() === self.placeMarkers()[i].id) {
+                var selected = self.placeMarkers()[i];
+                self.populateInfoWindow(selected, largeInfoWindow);
+                break;
+            }
+        };
+        for (var i = 0; i < self.foodMarkers().length; i++) {
+            if (item.id() === self.foodMarkers()[i].id) {
+                var selected = self.foodMarkers()[i];
+                self.populateInfoWindow(selected, largeInfoWindow);
+                break;
+            }
+        };
     }
 
     //styles for map
@@ -242,5 +296,5 @@ var ViewModel = function () {
 }
 
 function init() {
-ko.applyBindings(new ViewModel());
+    ko.applyBindings(new ViewModel());
 }
