@@ -241,6 +241,6 @@ var ViewModel = function () {
 
 }
 
-//function init() {
+function init() {
 ko.applyBindings(new ViewModel());
-//&callback=init}
+}
