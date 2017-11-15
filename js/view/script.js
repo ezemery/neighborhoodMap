@@ -179,6 +179,7 @@ var ViewModel = function () {
 
             }
         },
+        
         error: function () {
             alert("We seem to have run into a problem, Try again later");
         }
