@@ -4,14 +4,14 @@ var Place = function (item) {
     this.name = ko.observable(item.venue.name);
     this.rating = ko.observable(item.venue.rating);
     this.id = ko.observable(item.venue.id);
-}
+};
 var Food = function (item) {
     this.lat = ko.observable(item.venue.location.lat);
     this.lng = ko.observable(item.venue.location.lng);
     this.name = ko.observable(item.venue.name);
     this.rating = ko.observable(item.venue.rating);
     this.id = ko.observable(item.venue.id);
-}
+};
 
 var ViewModel = function () {
     self = this;
@@ -31,6 +31,7 @@ var ViewModel = function () {
 
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
+
 
     //styles for map
     var styles = [{
@@ -80,7 +81,7 @@ var ViewModel = function () {
         query2: 'food',
         v: '20170801',
         limit: 10
-    }
+    };
 
     //call api for places
     $.ajax({
@@ -93,9 +94,10 @@ var ViewModel = function () {
             //Customize icon for places
             var placesIcon = makeMarkerIcon('././images/heart2.png');
             for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
-                for (var j = 0, place = groups[i].items; j < place.length; j++) {
+                for (var j = 0, place = groups[0].items; j < place.length; j++) {
                     //the following uses the places observable array to create  markers on initialise
                     self.places.unshift(new Place(place[j]));
+
                     //get the recommended locations
                     var location = {
                         lat: place[j].venue.location.lat,
@@ -113,23 +115,37 @@ var ViewModel = function () {
                     });
                     //push marker into observable array
                     self.placeMarkers.push(marker);
+
                     //create an onclick to open an info window at each marker
-                    marker.addListener("click", function () {
-                        self.populateInfoWindow(this, largeInfoWindow);
-                    });
+                    functionPopulate();
+
                     //create an event listener to bounce markers on click
-                    marker.addListener("click", function () {
-                        self.toggleBounce(this);
-                    });
+                    functionBounce();
 
                     // Event that closes the Info Window with a click on the map
-                    google.maps.event.addListener(map, 'click', function () {
-                        largeInfoWindow.close();
-                    });
+                    closeInfo();
                 }
 
             }
-        },
+
+            function functionPopulate() {
+                marker.addListener("click", function () {
+                    self.populateInfoWindow(this, largeInfoWindow);
+                });
+            }
+
+            function functionBounce() {
+                marker.addListener("click", function () {
+                    self.populateInfoWindow(this, largeInfoWindow);
+                });
+            }
+
+            function closeInfo() {
+                google.maps.event.addListener(map, 'click', function () {
+                    largeInfoWindow.close();
+                });
+            }
+        }
     });
 
     //call api for food 
@@ -163,23 +179,36 @@ var ViewModel = function () {
                     //push marker into observable array
                     self.foodMarkers.push(marker);
                     //create an onclick to open an info window at each marker
-                    marker.addListener("click", function () {
-                        self.populateInfoWindow(this, largeInfoWindow);
-                        console.log(this);
-                    });
+                    functionPopulate();
+
                     //create an event listener to bounce markers on click
-                    marker.addListener("click", function () {
-                        self.toggleBounce(this);
-                    });
+                    functionBounce();
+
                     // Event that closes the Info Window with a click on the map
-                    google.maps.event.addListener(map, 'click', function () {
-                        largeInfoWindow.close();
-                    });
+                    closeInfo();
                 }
 
             }
+
+            function functionPopulate() {
+                marker.addListener("click", function () {
+                    self.populateInfoWindow(this, largeInfoWindow);
+                });
+            }
+
+            function functionBounce() {
+                marker.addListener("click", function () {
+                    self.populateInfoWindow(this, largeInfoWindow);
+                });
+            }
+
+            function closeInfo() {
+                google.maps.event.addListener(map, 'click', function () {
+                    largeInfoWindow.close();
+                });
+            }
         },
-        
+
         error: function () {
             alert("We seem to have run into a problem, Try again later");
         }
@@ -212,7 +241,7 @@ var ViewModel = function () {
         });
 
 
-    }
+    };
 
     //This function populates an info window anytime a marker is clicked, we will
     //only only one infowindow which would populate at the clicked marker, and populate 
@@ -248,7 +277,7 @@ var ViewModel = function () {
 
         infowindow.open(map, marker);
 
-    }
+    };
 
     //show or hide food markers if the the food is checked or not
     self.hideFoodMarkers = ko.computed(function () {
@@ -262,8 +291,8 @@ var ViewModel = function () {
             }
             map.fitBounds(bounds);
         } else {
-            for (var i = 0; i < self.foodMarkers().length; i++) {
-                self.foodMarkers()[i].setMap(null);
+            for (var j = 0; j < self.foodMarkers().length; j++) {
+                self.foodMarkers()[j].setMap(null);
                 //close infowindow if open
                 largeInfoWindow.close();
             }
@@ -282,8 +311,9 @@ var ViewModel = function () {
             }
             map.fitBounds(bounds);
         } else {
-            for (var i = 0; i < self.placeMarkers().length; i++) {
-                self.placeMarkers()[i].setMap(null);
+            var j;
+            for (j = 0; j < self.placeMarkers().length; j++) {
+                self.placeMarkers()[j].setMap(null);
                 //close infowindow if open
                 largeInfoWindow.close();
             }
@@ -294,7 +324,8 @@ var ViewModel = function () {
     //This function binds the clicked menu to the marker info window
     self.getMarker = function (item) {
         var selected;
-        for (var i = 0; i < self.placeMarkers().length; i++) {
+        var i;
+        for (i = 0; i < self.placeMarkers().length; i++) {
             if (item.id() === self.placeMarkers()[i].id) {
                 selected = self.placeMarkers()[i];
                 self.populateInfoWindow(selected, largeInfoWindow);
@@ -302,8 +333,8 @@ var ViewModel = function () {
                 self.toggleBounce(selected);
                 break;
             }
-        };
-        for (var i = 0; i < self.foodMarkers().length; i++) {
+        }
+        for (i = 0; i < self.foodMarkers().length; i++) {
             if (item.id() === self.foodMarkers()[i].id) {
                 selected = self.foodMarkers()[i];
                 self.populateInfoWindow(selected, largeInfoWindow);
@@ -311,8 +342,8 @@ var ViewModel = function () {
                 self.toggleBounce(selected);
                 break;
             }
-        };
-    }
+        }
+    };
 
 
     //style google maps infowindow
@@ -371,7 +402,7 @@ var ViewModel = function () {
 
 
     });
-}
+};
 
 function init() {
     ko.applyBindings(new ViewModel());
