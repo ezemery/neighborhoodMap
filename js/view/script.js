@@ -86,7 +86,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=15&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
 
@@ -136,7 +136,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=15&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
             //Customize icon for food markers
@@ -218,7 +218,7 @@ var ViewModel = function () {
     //based on the markers position
     self.populateInfoWindow = function (marker, infowindow) {
         //Clear the info window content to give googlemaps time to load
-        infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
+        infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="150px" height="150px">');
         // //make sure the property is cleared if the info window is closed
         infowindow.addListener('closeclick', function () {
             infowindow.marker = null;
@@ -229,10 +229,19 @@ var ViewModel = function () {
             url: 'https://api.foursquare.com/v2/venues/' + marker.id + '?client_id=' + data.client_id + '&client_secret=' + data.client_secret + '&v=20140806&m=foursquare',
             dataType: "jsonp",
             success: function (data) {
+                // InfoWindow content
+                var content = '<div id="iw-container">' +
+                    '<div class="iw-title">' + data.response.venue.name + '</div>' +
+                    '<div class="iw-content">' +
+                    '<div class="iw-subTitle">' + data.response.venue.location.formattedAddress[0] + '</div>' +
+                    '<img src="' + data.response.venue.bestPhoto.prefix + '200x200' + data.response.venue.bestPhoto.suffix + '" alt="Photo" height="83" width="83">' +
+                    '<div class="iw-subTitle">' + data.response.venue.likes.summary + '</div>' +
+                    '</div>';
+                infowindow.setContent(content);
                 console.log(data);
             },
             error: function () {
-                alert("We seem to have run into a problem, Try again later");
+                infowindow.setContent('<p class="iw-subTitle">Oopps!, Please try again</p>');
             }
         });
 

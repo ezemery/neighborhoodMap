@@ -308,7 +308,7 @@ _:-ms-input-placeholder,
 }
 
 .gm-style-iw {
-  width: 100px !important;
+  width: 150px !important;
   top: 15px !important;
   left: 0px !important;
   background-color: #fff;
@@ -317,15 +317,40 @@ _:-ms-input-placeholder,
   border-radius: 2px 2px 10px 10px;
 }
 
-.iw-title {
+#iw-container {
+  margin-bottom: 10px;
+}
+
+#iw-container .iw-title {
   font-family: 'Open Sans Condensed', sans-serif;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 400;
   padding: 10px;
   background-color: #48b5e9;
   color: white;
   margin: 0;
   border-radius: 2px 2px 0 0;
+}
+
+#iw-container .iw-content {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  margin-right: 1px;
+  padding: 15px 5px 20px 15px;
+  max-height: 140px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.iw-content img {
+  margin: 0 5px 5px 10px;
+}
+
+.iw-subTitle {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 5px 0;
 }
 
 #pano {
