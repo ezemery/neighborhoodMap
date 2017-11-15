@@ -11,7 +11,7 @@ Checkout the project [Neighborhood Map Preview](https://ezdevelopers.github.io/n
 5. [Material Design Lite](https://code.getmdl.io/)
 
 
-The repository contains css, images, fonts and js folders, as well as an index.html and a README.md file. Once you have downloaded the files which udacity have provided, you will have to edit app.js to build the game.
+The repository contains css, images, fonts and js folders, as well as an index.html and a README.md file. Once you have downloaded the files, you can play with it however you like.
 
 * **css/**: The css folder contains a style.css file which you may or may not need to edit
 * **images/**: The images folder contains the png image files, which are used when displaying the marker icons. The images for the matkers are going to be loaded from this folder.
