@@ -59,17 +59,8 @@
             <div class="mdl-layout__header-row">
                 <span class="mdl-layout-title">Omo Lagos</span>
                 <div class="mdl-layout-spacer"></div>
-                <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
-                    <label class="mdl-button mdl-js-button mdl-button--icon" for="search">
-              <i class="material-icons">search</i>
-            </label>
-                    <div class="mdl-textfield__expandable-holder">
-                        <input class="mdl-textfield__input" type="text" id="search">
-                        <label class="mdl-textfield__label" for="search">Enter your query...</label>
-                    </div>
-                </div>
+                All data provided by &nbsp;<a href="https://foursquare.com/"> Four Square API</a>
             </div>
-            <div class="mdl-spinner mdl-js-spinner is-active"></div>
         </header>
         <div class="demo-drawer mdl-layout__drawer mdl-color--blue-grey-900 mdl-color-text--blue-grey-50">
             <header class="demo-drawer-header">
@@ -78,11 +69,11 @@
                     <div class="mdl-layout-spacer"></div>
                 </div>
                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="night">
-                    <input type="checkbox" id="night" class="mdl-checkbox__input" data-bind="checked:placesChecked, clicked:togglePlacesChecked">
+                    <input type="checkbox" id="night" class="mdl-checkbox__input" data-bind="checked:placesChecked">
                     <span class="mdl-checkbox__label">Nightlife</span>
                     </label>
                 <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="food">
-<input type="checkbox" id="food" class="mdl-checkbox__input" checked data-bind="checked:foodChecked,clicked:toggleFoodChecked">
+<input type="checkbox" id="food" class="mdl-checkbox__input" checked data-bind="checked:foodChecked">
                     <span class="mdl-checkbox__label">Food</span>
                     </label>
             </header>
@@ -114,7 +105,7 @@
     <script src="https://code.getmdl.io/1.3.0/material.min.js"></script>
     <script src="js/view/knockout.min.js"></script>
     <script src="js/view/script.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATWMwHKXegg15Z6Ceu3I1Mou3MGWYKy-I&callback=init">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyATWMwHKXegg15Z6Ceu3I1Mou3MGWYKy-I&callback=init" async defer>
     </script>
 </body>
 

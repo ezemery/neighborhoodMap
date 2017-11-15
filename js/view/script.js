@@ -15,31 +15,63 @@ var Food = function (item) {
 
 var ViewModel = function () {
     self = this;
-    // Ajax start global function
-    $(document).ajaxStart(function () {
-        $(".mdl-spinner").show()
-        console.log("Ajax Request is Starting");
-    });
-    // Ajax stop global function
-    $(document).ajaxStop(function () {
-        $(".mdl-spinner").hide()
-        console.log("Ajax Request has ended");
-    });
+    //define the map variable
+    var map;
     //store places fetched from foursquare api
     self.places = ko.observableArray([]);
     self.food = ko.observableArray([]);
+
     //create a new blank array for all the listing markers
     self.placeMarkers = ko.observableArray([]);
     self.foodMarkers = ko.observableArray([]);
-    //hiding or displaying markers
+
+    //observables for hiding or displaying markers
     self.foodChecked = ko.observable(true);
     self.placesChecked = ko.observable(true);
 
     //Infowindow display
     var largeInfoWindow = new google.maps.InfoWindow();
-    //Get the bounds of the map
-    var bounds = new google.maps.LatLngBounds();
-    // make an api call to get places 
+
+    //styles for map
+    var styles = [{
+        "featureType": "all",
+        "elementType": "all",
+        "stylers": [{
+                "invert_lightness": true
+            },
+            {
+                "saturation": 10
+            },
+            {
+                "lightness": 30
+            },
+            {
+                "gamma": 0.5
+            },
+            {
+                "hue": "#435158"
+            }
+        ]
+    }];
+
+    //initiate the map
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {
+            lat: 6.5244,
+            lng: 3.3792
+        },
+        styles: styles,
+        zoom: 14,
+        mapTypeId: 'roadmap'
+    });
+
+    /* 
+     make an api call to get places for nightlife and food recommended places.
+     Advance this feature is the future to get user location and recommend places 
+     to visit
+    */
+
+    //data for foursquare authentication
     var data = {
         client_id: 'UFBYJUIXWCPYGOS4BGBCQKTLRMR2VIHDIKO4NSHSQM125DQR',
         client_secret: 'JHCF3AICMJQ4HYAJ5RJN1GGEK45B1B3KRQO20JZN0TZCBICG',
@@ -57,23 +89,22 @@ var ViewModel = function () {
         url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
-            //Customize icon
+
+            //Customize icon for places
             var placesIcon = makeMarkerIcon('././images/heart2.png');
             for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
-                console.log(groups[i]);
                 for (var j = 0, place = groups[i].items; j < place.length; j++) {
+                    //the following uses the places observable array to create  markers on initialise
                     self.places.unshift(new Place(place[j]));
-
-                    //the following uses the places observable array to create a markers on initialise
+                    //get the recommended locations
                     var location = {
                         lat: place[j].venue.location.lat,
                         lng: place[j].venue.location.lng
                     };
-
+                    //get the recommended titles of locations
                     var title = place[j].venue.name;
 
                     var marker = new google.maps.Marker({
-                        map: map,
                         position: location,
                         title: title,
                         animation: google.maps.Animation.DROP,
@@ -82,13 +113,15 @@ var ViewModel = function () {
                     });
                     //push marker into observable array
                     self.placeMarkers.push(marker);
-                    //extend bounds for each marker
-                    bounds.extend(marker.position)
                     //create an onclick to open an info window at each marker
                     marker.addListener("click", function () {
                         self.populateInfoWindow(this, largeInfoWindow);
-                        console.log(this);
                     });
+                    //create an event listener to bounce markers on click
+                    marker.addListener("click", function () {
+                        self.toggleBounce(this);
+                    });
+
                     // Event that closes the Info Window with a click on the map
                     google.maps.event.addListener(map, 'click', function () {
                         largeInfoWindow.close();
@@ -96,36 +129,31 @@ var ViewModel = function () {
                 }
 
             }
-            map.fitBounds(bounds);
         },
-        error: function () {
-            alert("We seem to have run into a problem, Try again later");
-        }
     });
-    //call api for food
+
+    //call api for food 
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
         url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
-            //Customize icon
+            //Customize icon for food markers
             var foodIcon = makeMarkerIcon("././images/restaurant2.png");
             for (var i = 0, groups = data.response.groups; i < groups.length; i++) {
-                console.log(groups[i]);
                 for (var j = 0, place = groups[i].items; j < place.length; j++) {
-                    self.food.unshift(new Food(place[j]));
-
                     //the following uses the places observable array to create a markers on initialise
+                    self.food.unshift(new Food(place[j]));
+                    //get the recomended location for food places
                     var location = {
                         lat: place[j].venue.location.lat,
                         lng: place[j].venue.location.lng
                     };
-
+                    //get the title of the recommended places
                     var title = place[j].venue.name;
 
                     var marker = new google.maps.Marker({
-                        map: map,
                         position: location,
                         title: title,
                         animation: google.maps.Animation.DROP,
@@ -134,12 +162,14 @@ var ViewModel = function () {
                     });
                     //push marker into observable array
                     self.foodMarkers.push(marker);
-                    //extend bounds for each marker
-                    bounds.extend(marker.position)
                     //create an onclick to open an info window at each marker
                     marker.addListener("click", function () {
                         self.populateInfoWindow(this, largeInfoWindow);
                         console.log(this);
+                    });
+                    //create an event listener to bounce markers on click
+                    marker.addListener("click", function () {
+                        self.toggleBounce(this);
                     });
                     // Event that closes the Info Window with a click on the map
                     google.maps.event.addListener(map, 'click', function () {
@@ -148,12 +178,12 @@ var ViewModel = function () {
                 }
 
             }
-            map.fitBounds(bounds);
         },
         error: function () {
             alert("We seem to have run into a problem, Try again later");
         }
     });
+
     //This function makes custom map icons
     function makeMarkerIcon(image) {
         var markerIcon = new google.maps.MarkerImage(image,
@@ -163,6 +193,24 @@ var ViewModel = function () {
             // The anchor for this image is the base of the flagpole at (0, 32).
             new google.maps.Point(0, 0));
         return markerIcon;
+    }
+    // toggle bounce on clicking marker
+    self.toggleBounce = function (marker) {
+        if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+        } else {
+            marker.setAnimation(google.maps.Animation.DROP);
+        }
+        marker.addListener('closeclick', function () {
+            marker.setAnimation(null);
+        });
+        // Event that closes the Info Window with a click on the map
+        google.maps.event.addListener(map, 'click', function () {
+            largeInfoWindow.close();
+            marker.setAnimation(null);
+        });
+
+
     }
 
     //This function populates an info window anytime a marker is clicked, we will
@@ -175,9 +223,9 @@ var ViewModel = function () {
             //Clear the info window content to give googlemaps time to load
             infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
             // //make sure the property is cleared if the info window is closed
-            infowindow.addListener('closeclick', function () {
-                infowindow.marker = null;
-            });
+            // infowindow.addListener('closeclick', function () {
+            //     infowindow.marker = null;
+            // });
             $.ajax({
                 type: "GET",
                 contentType: 'application/json; charset=UTF-8',
@@ -195,6 +243,65 @@ var ViewModel = function () {
         }
 
     }
+
+    //show or hide food markers if the the food is checked or not
+    self.hideFoodMarkers = ko.computed(function () {
+        if (self.foodChecked()) {
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < self.foodMarkers().length; i++) {
+                // console.log(self.placeMarkers()[i]);
+                self.foodMarkers()[i].setMap(map);
+                bounds.extend(self.foodMarkers()[i].position);
+            }
+            map.fitBounds(bounds);
+        } else {
+            for (var i = 0; i < self.foodMarkers().length; i++) {
+                self.foodMarkers()[i].setMap(null);
+            }
+        }
+
+    });
+    //show or hide place markers if Nightlife is checked
+    self.hidePlaceMarkers = ko.computed(function () {
+        if (self.placesChecked()) {
+            var bounds = new google.maps.LatLngBounds();
+            for (var i = 0; i < self.placeMarkers().length; i++) {
+                // console.log(self.placeMarkers()[i]);
+                self.placeMarkers()[i].setMap(map);
+                bounds.extend(self.placeMarkers()[i].position);
+            }
+            map.fitBounds(bounds);
+        } else {
+            for (var i = 0; i < self.placeMarkers().length; i++) {
+                self.placeMarkers()[i].setMap(null);
+            }
+        }
+
+    });
+
+    //This function binds the clicked menu to the marker info window
+    self.getMarker = function (item) {
+        var selected;
+        for (var i = 0; i < self.placeMarkers().length; i++) {
+            if (item.id() === self.placeMarkers()[i].id) {
+                selected = self.placeMarkers()[i];
+                self.populateInfoWindow(selected, largeInfoWindow);
+                //create an event listener to bounce markers on click
+                self.toggleBounce(selected);
+                break;
+            }
+        };
+        for (var i = 0; i < self.foodMarkers().length; i++) {
+            if (item.id() === self.foodMarkers()[i].id) {
+                selected = self.foodMarkers()[i];
+                self.populateInfoWindow(selected, largeInfoWindow);
+                //create an event listener to bounce markers on click
+                self.toggleBounce(selected);
+                break;
+            }
+        };
+    }
+
 
     //style google maps infowindow
     /* 
@@ -252,68 +359,6 @@ var ViewModel = function () {
 
 
     });
-    //toggle places checked
-    self.togglePlacesChecked = function () {
-       self.placesChecked(!self.placesChecked());
-       console.log(self.placesChecked());
-    }
-    //toggle food checked
-    self.toggleFoodChecked = function (item) {
-        self.foodChecked(!self.foodChecked());
-        console.log(self.foodChecked())
-    }
-
-    //This function binds the clicked menu to the marker info window
-    self.getMarker = function (item) {
-        for (var i = 0; i < self.placeMarkers().length; i++) {
-            if (item.id() === self.placeMarkers()[i].id) {
-                var selected = self.placeMarkers()[i];
-                self.populateInfoWindow(selected, largeInfoWindow);
-                break;
-            }
-        };
-        for (var i = 0; i < self.foodMarkers().length; i++) {
-            if (item.id() === self.foodMarkers()[i].id) {
-                var selected = self.foodMarkers()[i];
-                self.populateInfoWindow(selected, largeInfoWindow);
-                break;
-            }
-        };
-    }
-
-    //styles for map
-    var styles = [{
-        "featureType": "all",
-        "elementType": "all",
-        "stylers": [{
-                "invert_lightness": true
-            },
-            {
-                "saturation": 10
-            },
-            {
-                "lightness": 30
-            },
-            {
-                "gamma": 0.5
-            },
-            {
-                "hue": "#435158"
-            }
-        ]
-    }];
-
-    //initiate the map
-    var map = new google.maps.Map(document.getElementById('map'), {
-        center: {
-            lat: 6.5244,
-            lng: 3.3792
-        },
-        styles: styles,
-        zoom: 14,
-        mapTypeId: 'roadmap'
-    });
-
 }
 
 function init() {
