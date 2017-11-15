@@ -86,7 +86,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=15&query=" + data.query + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
 
@@ -136,7 +136,7 @@ var ViewModel = function () {
     $.ajax({
         type: "GET",
         contentType: 'application/json; charset=UTF-8',
-        url: "https://api.foursquare.com/v2/venues/explore?limit=10&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
+        url: "https://api.foursquare.com/v2/venues/explore?limit=15&query=" + data.query2 + "&ll=" + data.ll + "&client_id=" + data.client_id + "&client_secret=" + data.client_secret + "&v=20140806&m=foursquare",
         dataType: "jsonp",
         success: function (data) {
             //Customize icon for food markers
@@ -217,30 +217,26 @@ var ViewModel = function () {
     //only only one infowindow which would populate at the clicked marker, and populate 
     //based on the markers position
     self.populateInfoWindow = function (marker, infowindow) {
-        //check to make sure the info window in not open at this marker
-        if (infowindow.marker != marker) {
-            infowindow.marker = marker;
-            //Clear the info window content to give googlemaps time to load
-            infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
-            // //make sure the property is cleared if the info window is closed
-            // infowindow.addListener('closeclick', function () {
-            //     infowindow.marker = null;
-            // });
-            $.ajax({
-                type: "GET",
-                contentType: 'application/json; charset=UTF-8',
-                url: 'https://api.foursquare.com/v2/venues/' + marker.id + '?client_id=' + data.client_id + '&client_secret=' + data.client_secret + '&v=20140806&m=foursquare',
-                dataType: "jsonp",
-                success: function (data) {
-                    console.log(data);
-                },
-                error: function () {
-                    alert("We seem to have run into a problem, Try again later");
-                }
-            });
+        //Clear the info window content to give googlemaps time to load
+        infowindow.setContent('<img src="././images/44frgm.gif" alt="loader" width="100px" height="100px">');
+        // //make sure the property is cleared if the info window is closed
+        infowindow.addListener('closeclick', function () {
+            infowindow.marker = null;
+        });
+        $.ajax({
+            type: "GET",
+            contentType: 'application/json; charset=UTF-8',
+            url: 'https://api.foursquare.com/v2/venues/' + marker.id + '?client_id=' + data.client_id + '&client_secret=' + data.client_secret + '&v=20140806&m=foursquare',
+            dataType: "jsonp",
+            success: function (data) {
+                console.log(data);
+            },
+            error: function () {
+                alert("We seem to have run into a problem, Try again later");
+            }
+        });
 
-            infowindow.open(map, marker);
-        }
+        infowindow.open(map, marker);
 
     }
 
@@ -251,12 +247,15 @@ var ViewModel = function () {
             for (var i = 0; i < self.foodMarkers().length; i++) {
                 // console.log(self.placeMarkers()[i]);
                 self.foodMarkers()[i].setMap(map);
+                self.foodMarkers()[i].setAnimation(google.maps.Animation.DROP);
                 bounds.extend(self.foodMarkers()[i].position);
             }
             map.fitBounds(bounds);
         } else {
             for (var i = 0; i < self.foodMarkers().length; i++) {
                 self.foodMarkers()[i].setMap(null);
+                //close infowindow if open
+                largeInfoWindow.close();
             }
         }
 
@@ -268,12 +267,15 @@ var ViewModel = function () {
             for (var i = 0; i < self.placeMarkers().length; i++) {
                 // console.log(self.placeMarkers()[i]);
                 self.placeMarkers()[i].setMap(map);
+                self.placeMarkers()[i].setAnimation(google.maps.Animation.DROP);
                 bounds.extend(self.placeMarkers()[i].position);
             }
             map.fitBounds(bounds);
         } else {
             for (var i = 0; i < self.placeMarkers().length; i++) {
                 self.placeMarkers()[i].setMap(null);
+                //close infowindow if open
+                largeInfoWindow.close();
             }
         }
 

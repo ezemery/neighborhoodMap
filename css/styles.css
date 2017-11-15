@@ -332,3 +332,8 @@ _:-ms-input-placeholder,
   width: 100px;
   height: 100px;
 }
+
+.attribute {
+  font-size: 12px;
+  margin-top: 18px;
+}
