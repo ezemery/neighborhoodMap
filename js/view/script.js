@@ -424,7 +424,6 @@ var ViewModel = function () {
 function init() {
     ko.applyBindings(new ViewModel());
 }
-
 function errorFn() {
     $("#map").css({
         'background-image': 'url("././images/error.png")',
