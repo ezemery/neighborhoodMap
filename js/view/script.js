@@ -128,23 +128,27 @@ var ViewModel = function () {
 
             }
 
+            //Populate info window on click
             function functionPopulate() {
                 marker.addListener("click", function () {
                     self.populateInfoWindow(this, largeInfoWindow);
                 });
             }
-
+            //Show marker acrive state by bouncing when marker is clicked
             function functionBounce() {
                 marker.addListener("click", function () {
-                    self.populateInfoWindow(this, largeInfoWindow);
+                    self.toggleBounce(this);
                 });
             }
-
+            //close info window when map is clicked
             function closeInfo() {
                 google.maps.event.addListener(map, 'click', function () {
                     largeInfoWindow.close();
                 });
             }
+        },
+        error: function () {
+            alert("We seem to have run into a problem trying to get Night hangouts, Try again later");
         }
     });
 
@@ -189,19 +193,19 @@ var ViewModel = function () {
                 }
 
             }
-
+            //Populate info window on click
             function functionPopulate() {
                 marker.addListener("click", function () {
                     self.populateInfoWindow(this, largeInfoWindow);
                 });
             }
-
+            //Show marker acrive state by bouncing when marker is clicked
             function functionBounce() {
                 marker.addListener("click", function () {
-                    self.populateInfoWindow(this, largeInfoWindow);
+                    self.toggleBounce(this);
                 });
             }
-
+            //close info window when map is clicked
             function closeInfo() {
                 google.maps.event.addListener(map, 'click', function () {
                     largeInfoWindow.close();
@@ -210,7 +214,7 @@ var ViewModel = function () {
         },
 
         error: function () {
-            alert("We seem to have run into a problem, Try again later");
+            alert("We also ran into a problem trying to get food hangouts, Try again later");
         }
     });
 
@@ -229,7 +233,10 @@ var ViewModel = function () {
         if (marker.getAnimation() !== null) {
             marker.setAnimation(null);
         } else {
-            marker.setAnimation(google.maps.Animation.DROP);
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            window.setTimeout(function () {
+                marker.setAnimation(null);
+            }, 2000);
         }
         marker.addListener('closeclick', function () {
             marker.setAnimation(null);
@@ -290,6 +297,10 @@ var ViewModel = function () {
                 bounds.extend(self.foodMarkers()[i].position);
             }
             map.fitBounds(bounds);
+            //always fit the markers to bounds on resizing screen
+            google.maps.event.addDomListener(window, 'resize', function () {
+                map.fitBounds(bounds); // `bounds` is a `LatLngBounds` object
+            });
         } else {
             for (var j = 0; j < self.foodMarkers().length; j++) {
                 self.foodMarkers()[j].setMap(null);
@@ -310,6 +321,10 @@ var ViewModel = function () {
                 bounds.extend(self.placeMarkers()[i].position);
             }
             map.fitBounds(bounds);
+            //always fit the markers to bounds on resizing screen
+            google.maps.event.addDomListener(window, 'resize', function () {
+                map.fitBounds(bounds); // `bounds` is a `LatLngBounds` object
+            });
         } else {
             var j;
             for (j = 0; j < self.placeMarkers().length; j++) {
@@ -320,6 +335,8 @@ var ViewModel = function () {
         }
 
     });
+
+
 
     //This function binds the clicked menu to the marker info window
     self.getMarker = function (item) {
@@ -406,4 +423,11 @@ var ViewModel = function () {
 
 function init() {
     ko.applyBindings(new ViewModel());
+}
+
+function errorFn() {
+    $("#map").css({
+        'background-image': 'url("././images/error.png")',
+        'background-size': 'cover'
+    });
 }
